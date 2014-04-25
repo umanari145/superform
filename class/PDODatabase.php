@@ -3,11 +3,9 @@
 /**
  * 各種DB 
  * 
- * 主に static 参照するユーティリティ系の関数群
+ * 主に DB処理
  *
- * :XXX: 内部でインスタンスを生成している関数は, Helper クラスへ移動するべき...
- *
- * @package Util
+ * @package Datadabase
  * @author LOCKON CO.,LTD.
  * @version $Id:self.php 15532 2007-08-31 14:39:46Z nanasess $
  */
@@ -68,9 +66,16 @@ class Database{
                  .      $where 
                  .      $other ;
 
-
             $stmt = $this->dbh->prepare($sql);
-            $stmt->execute($whereData);
+
+            if( $whereData !== '' ) 
+            {
+            	$stmt->execute($whereData);
+            }
+            else
+            {
+            	$stmt->execute();
+            }
             
             //データを連想配列に格納
             $data = array();

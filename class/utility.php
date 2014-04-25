@@ -1941,7 +1941,7 @@ class utility {
      * @param boolean $greedy "貧欲"にチェックを行う場合 true
      * @return boolean $val が空白と判断された場合 true
      */
-    function isBlank($val, $greedy = true) {
+    static function isBlank($val, $greedy = true) {
         if (is_array($val)) {
             if ($greedy) {
                 if (empty($val)) {
@@ -2140,6 +2140,18 @@ class utility {
          */
         is_dir(dirname($pathname)) || self::recursiveMkdir(dirname($pathname), $mode);
         return is_dir($pathname) || @mkdir($pathname, $mode);
+    }
+    
+    /**  
+     * 拡張子なしのファイル名を取得する
+     * @return string ファイル名
+     */
+    function getFileNameWithoutExtension()
+    {
+    	$filename = basename(__FILE__, '.php');
+    
+    	return ( isset($filename) && $filename !== '' ) ? $filename:false;
+   	
     }
 }
 ?>

@@ -22,7 +22,6 @@ class formParam
     /** キー名 */
     public $keyname = array();
 
-    public $length = array();
     public $convert = array();
     public $arrCheck = array();
 
@@ -54,7 +53,6 @@ class formParam
     {
         $this->disp_name = array();
         $this->keyname = array();
-        $this->length = array();
         $this->convert = array();
         $this->arrCheck = array();
         $this->arrDefault = array();
@@ -62,11 +60,10 @@ class formParam
     }
 
     // パラメーターの追加
-    public function addParam($disp_name, $keyname, $length = '', $convert = '', $arrCheck = array(), $default = '', $input_db = true)
+    public function addParam($disp_name, $keyname, $convert = '', $arrCheck = array(), $default = '', $input_db = true)
     {
         $this->disp_name[] = $disp_name;
         $this->keyname[] = $keyname;
-        $this->length[] = $length;
         $this->convert[] = $convert;
         $this->arrCheck[] = $arrCheck;
         // XXX このタイミングで arrValue へ格納するほうがスマートかもしれない。しかし、バリデーションや変換の対象となるので、その良し悪しは気になる。
@@ -198,7 +195,7 @@ class formParam
                     case 'FILE_NAME_CHECK_BY_NOUPLOAD':
                     case 'NUM_POINT_CHECK':
                         $this->recursionCheck($this->disp_name[$index], $func,
-                            $value, $arrErr, $key, $this->length[$index]);
+                            $value, $arrErr, $key);
                         break;
                     // 小文字に変換
                     case 'CHANGE_LOWER':
@@ -242,23 +239,22 @@ class formParam
      * @param  mixed   $value          チェック対象の値. 配列の場合は再帰的にチェックする.
      * @param  array   $arrErr         エラーメッセージを格納する配列
      * @param  string  $error_key      エラーメッセージを格納する配列のキー
-     * @param  integer $length         チェック対象の値の長さ
      * @param  integer $depth          再帰実行した場合の深度
      * @param  integer $error_last_key エラーメッセージを格納する配列の末端のキー
      * @return void
      */
     public function recursionCheck($disp_name, $func, $value, &$arrErr, $error_key,
-        $length = 0, $depth = 0, $error_last_key = null
+       $depth = 0, $error_last_key = null
     ) {
         if (is_array($value)) {
             $depth++;
             foreach ($value as $key => $in) {
                 $this->recursionCheck($disp_name, $func, $in, $arrErr, $error_key,
-                                      $length, $depth, $key);
+                                    $depth, $key);
             }
         } else {
             $objErr = new checkError(array(($error_last_key ? $error_last_key : $error_key) => $value));
-            $objErr->doFunc(array($disp_name, ($error_last_key ? $error_last_key : $error_key), $length), array($func));
+            $objErr->doFunc(array($disp_name, ($error_last_key ? $error_last_key : $error_key)), array($func));
             if (!utility::isBlank($objErr->arrErr)) {
                 foreach ($objErr->arrErr as $message) {
                     if (!utility::isBlank($message)) {
@@ -384,8 +380,6 @@ class formParam
             $formParamList[$key]['keyname'] = $key;
             // 表示名
             $formParamList[$key]['disp_name'] = $this->disp_name[$index];
-            // 文字数制限
-            $formParamList[$key]['length'] = $this->length[$index];
             // 入力値
             $formParamList[$key]['value'] = $this->getValue($key);
         }
@@ -513,8 +507,6 @@ class formParam
             $formDispArray[$index]['keyname'] = $key;
             // 表示名
             $formDispArray[$index]['disp_name']  = $this->disp_name[$index];
-            // 文字数制限
-            $formDispArray[$index]['length'] = $this->length[$index];
             // 入力値
             $formDispArray[$index]['value'] = $this->getValue($key);
         }
@@ -535,7 +527,6 @@ class formParam
             // 削除
             unset($this->disp_name[$index]);
             unset($this->keyname[$index]);
-            unset($this->length[$index]);
             unset($this->convert[$index]);
             unset($this->arrCheck[$index]);
             unset($this->arrDefault[$keyname]);
@@ -544,7 +535,6 @@ class formParam
             // 歯抜けになった配列を詰める
             $this->disp_name    = array_merge($this->disp_name);
             $this->keyname      = array_merge($this->keyname);
-            $this->length       = array_merge($this->length);
             $this->convert      = array_merge($this->convert);
             $this->arrCheck     = array_merge($this->arrCheck);
             $this->input_db     = array_merge($this->input_db);
@@ -555,7 +545,7 @@ class formParam
      * パラメーター定義の上書き
      *
      * @param string $keyname キー名
-     * @param string $target  上書きしたい項目名(disp_name,length,convert等)
+     * @param string $target  上書きしたい項目名(disp_name,convert等)
      * @param mixed  $value   指定した内容に上書きする
      */
     public function overwriteParam($keyname, $target, $value)

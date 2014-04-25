@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @author matsumoto norio
+ *
+ */
 class Core{
 
 	public $smarty       = NULL;
@@ -31,7 +35,7 @@ class Core{
          $this->smarty->compile_dir  = CACHE_DIR;
          
          //必須クラスの読み込み
-         $this->objDb = new Database( DB_HOST,DB_USER, DB_NAME, DB_PASS);
+         $this->objDb = new Database( DB_HOST,DB_USER, DB_PASS, DB_NAME);
 		 $this->objFormParam = new formParam();
 
     }
@@ -67,10 +71,23 @@ class Core{
              return $mode;
     }
 
-	
+    /**
+    * 
+    * 投稿があるかいなか
+    * @return boolean 投稿があるか否か
+    */
+	public function is_post()
+	{
+		return ( isset( $_POST['mode']) === true )?true:false;
+	}
+    
+    
 	//ビュー側に変数を渡す
 	public function render()
 	{
+		 $arrFom = $this->objFormParam->getFormParamList();
+		 if( !empty( $arrFom) ) $this->smarty->assign( 'arrForm', $arrFom);
+		 
          $this->smarty->assign( 'template', $this->template_filname .'.tpl');
 		 $this->smarty->display( $this->main_template_filename );
 	}

@@ -1,5 +1,6 @@
 
 /* CREATE DATABASE sampfra DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci; */
+/* GRANT ALL PRIVILEGES ON sampfra.* TO matsumoto@localhost IDENTIFIED BY 'password' WITH GRANT OPTION */
 
 
 DROP TABLE IF EXISTS `mtb_language`;

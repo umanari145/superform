@@ -1,30 +1,48 @@
 <?php
 class master
 { 
-   /** SC_Query ƒCƒ“ƒXƒ^ƒ“ƒX */
-    var $objQuery;
+   /** SC_Query ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ */
+    var $objDb = NULL;
 
-    /** ƒfƒtƒHƒ‹ƒg‚Ìƒe[ƒuƒ‹ƒJƒ‰ƒ€–¼ */
+    /** ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ãƒ†ãƒ¼ãƒ–ãƒ«ã‚«ãƒ©ãƒ å */
     var $columns = array('id', 'name', 'rank' );
 
     /**
-     * ƒ}ƒXƒ^[ƒf[ƒ^‚ğæ“¾‚·‚é.
+     * ãƒã‚¹ã‚¿ãƒ¼ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹.
      *
-     * ˆÈ‰º‚Ì‡˜‚Åƒ}ƒXƒ^[ƒf[ƒ^‚ğæ“¾‚·‚é.
-     * 1. MASTER_DATA_REALDIR ‚Éƒ}ƒXƒ^[ƒf[ƒ^ƒLƒƒƒbƒVƒ…‚ª‘¶İ‚µ‚È‚¢ê‡A
-     *    DB‚©‚çƒ}ƒXƒ^[ƒf[ƒ^‚ğæ“¾‚µ‚ÄAƒ}ƒXƒ^[ƒf[ƒ^ƒLƒƒƒbƒVƒ…‚ğ¶¬‚·‚éB
-     * 2. ƒ}ƒXƒ^[ƒf[ƒ^ƒLƒƒƒbƒVƒ…‚ğ“Ç‚İ‚İA•Ï”‚ÉŠi”[‚µ•Ô‚·B
+     * ä»¥ä¸‹ã®é †åºã§ãƒã‚¹ã‚¿ãƒ¼ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹.
+     * 1. MASTER_DATA_REALDIR ã«ãƒã‚¹ã‚¿ãƒ¼ãƒ‡ãƒ¼ã‚¿ã‚­ãƒ£ãƒƒã‚·ãƒ¥ãŒå­˜åœ¨ã—ãªã„å ´åˆã€
+     *    DBã‹ã‚‰ãƒã‚¹ã‚¿ãƒ¼ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã—ã¦ã€ãƒã‚¹ã‚¿ãƒ¼ãƒ‡ãƒ¼ã‚¿ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã‚’ç”Ÿæˆã™ã‚‹ã€‚
+     * 2. ãƒã‚¹ã‚¿ãƒ¼ãƒ‡ãƒ¼ã‚¿ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã‚’èª­ã¿è¾¼ã¿ã€å¤‰æ•°ã«æ ¼ç´ã—è¿”ã™ã€‚
      *
-     * •Ô‚è’l‚Í, key => value Œ`®‚Ì”z—ñ‚Å‚ ‚é.
+     * è¿”ã‚Šå€¤ã¯, key => value å½¢å¼ã®é…åˆ—ã§ã‚ã‚‹.
      *
-     * @param string $name ƒ}ƒXƒ^[ƒf[ƒ^–¼
-     * @param array $columns [0] => ƒL[, [1] => •\¦•¶š—ñ, [2] => •\¦‡
-     *                        ‚ğ•\‚·ƒJƒ‰ƒ€–¼‚ğŠi”[‚µ‚½”z—ñ
-     * @return array ƒ}ƒXƒ^[ƒf[ƒ^
+     * @param string $name ãƒã‚¹ã‚¿ãƒ¼ãƒ‡ãƒ¼ã‚¿å
+     * @param array $columns [0] => ã‚­ãƒ¼, [1] => è¡¨ç¤ºæ–‡å­—åˆ—, [2] => è¡¨ç¤ºé †
+     *                        ã‚’è¡¨ã™ã‚«ãƒ©ãƒ åã‚’æ ¼ç´ã—ãŸé…åˆ—
+     * @return array ãƒã‚¹ã‚¿ãƒ¼ãƒ‡ãƒ¼ã‚¿
      */
     function getMasterData($name, $columns = array()) {
 
-        return $masterData;
+    	$this->objDb = new Database(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+    	$masterData = $this->objDb->select($name);
+        
+    	$masterData2 = $this->setMasterArray($masterData);
+    	
+    	return $masterData2;
+    }
+    
+    function setMasterArray( $masterData )
+    {
+    	$masterData2 =array();
+    	foreach( $masterData as $id => $val )
+    	{
+    		$masterData2[$val['id']] = $val['name'];
+    	}
+    	
+    	return $masterData2;
+    	
     }
 }
 

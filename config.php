@@ -1,9 +1,9 @@
 <?php
 
-define('DB_HOST','');
-define('DB_NAME','');
-define('DB_USER','');
-define('DB_PASS','');
+define('DB_HOST','localhost');
+define('DB_NAME','sampfra');
+define('DB_USER','matsumoto');
+define('DB_PASS','password');
 define('URL', 'http://localhost/superform/');
 define('TOP_DIR','C:/xampp/');
 define('ROOT_DIR', TOP_DIR .'htdocs/');
