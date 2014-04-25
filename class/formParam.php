@@ -257,11 +257,11 @@ class formParam
                                       $length, $depth, $key);
             }
         } else {
-            $objErr = new SC_CheckError_Ex(array(($error_last_key ? $error_last_key : $error_key) => $value));
+            $objErr = new checkError(array(($error_last_key ? $error_last_key : $error_key) => $value));
             $objErr->doFunc(array($disp_name, ($error_last_key ? $error_last_key : $error_key), $length), array($func));
-            if (!SC_Utils_Ex::isBlank($objErr->arrErr)) {
+            if (!utility::isBlank($objErr->arrErr)) {
                 foreach ($objErr->arrErr as $message) {
-                    if (!SC_Utils_Ex::isBlank($message)) {
+                    if (!utility::isBlank($message)) {
                         // 再帰した場合は多次元配列のエラーメッセージを生成
                         $error_var = '$arrErr[$error_key]';
                         for ($i = 0; $i < $depth; $i++) {
@@ -303,7 +303,7 @@ class formParam
                 $this->recursionConvParam($value[$key], $convert);
             }
         } else {
-            if (!SC_Utils_Ex::isBlank($value)) {
+            if ( !utility::isBlank($value) ) {
                 //iの場合はint変換
                 if( $convert !== 'i' )
                 {
@@ -358,7 +358,7 @@ class formParam
     {
         $arrTmp = $this->getHashArray($arrKey);
 
-        return SC_Utils_Ex::sfSwapArray($arrTmp);
+        return utility::sfSwapArray($arrTmp);
     }
 
     // 項目名一覧の取得
@@ -416,12 +416,12 @@ class formParam
 
         if (is_array($ret)) {
             foreach ($ret as $key => $value) {
-                if (SC_Utils_Ex::isBlank($ret[$key])) {
+                if (utility::isBlank($ret[$key])) {
                     $ret[$key] = $default;
                 }
             }
         } else {
-            if (SC_Utils_Ex::isBlank($ret)) {
+            if (utility::isBlank($ret)) {
                 $ret = $default;
             }
         }
@@ -470,7 +470,7 @@ class formParam
                 $this->recursionTrim($value[$key], $has_wide_space);
             }
         } else {
-            if (!SC_Utils_Ex::isBlank($value)) {
+            if (!utility::isBlank($value)) {
                 if ($has_wide_space) {
                     $value = trim(mb_convert_kana( $value , "s"));
                 }

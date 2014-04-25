@@ -9,9 +9,9 @@
  *
  * @package Util
  * @author LOCKON CO.,LTD.
- * @version $Id:SC_Utils.php 15532 2007-08-31 14:39:46Z nanasess $
+ * @version $Id:self.php 15532 2007-08-31 14:39:46Z nanasess $
  */
-class utils {
+class utility {
 
     // インストール初期処理
     function sfInitInstall() {
@@ -1953,7 +1953,7 @@ class utils {
                      * self への再帰は無限ループやメモリリークの懸念
                      * 自クラスへ再帰する.
                      */
-                    $array_result = SC_Utils::isBlank($in, $greedy);
+                    $array_result = self::isBlank($in, $greedy);
                     if (!$array_result) {
                         return false;
                     }
@@ -2138,7 +2138,7 @@ class utils {
          * self への再帰は無限ループやメモリリークの懸念
          * 自クラスへ再帰する.
          */
-        is_dir(dirname($pathname)) || SC_Utils::recursiveMkdir(dirname($pathname), $mode);
+        is_dir(dirname($pathname)) || self::recursiveMkdir(dirname($pathname), $mode);
         return is_dir($pathname) || @mkdir($pathname, $mode);
     }
 }
