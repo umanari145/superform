@@ -194,6 +194,7 @@ class formParam
                     case 'SELECT_CHECK':
                     case 'FILE_NAME_CHECK_BY_NOUPLOAD':
                     case 'NUM_POINT_CHECK':
+                    case 'CHECK_DATE':
                         $this->recursionCheck($this->disp_name[$index], $func,
                             $value, $arrErr, $key);
                         break;

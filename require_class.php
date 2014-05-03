@@ -1,7 +1,9 @@
 <?php
-require_once (CLASS_DIR . 'utility.php');
-require_once (CLASS_DIR . 'checkError.php');
-require_once (CLASS_DIR . 'formParam.php');
-require_once (CLASS_DIR . 'dateClass.php');
-require_once (CLASS_DIR . 'PDODatabase.php');
-require_once (CLASS_DIR . 'masterData.php');
+
+/** クラスファイルを読み込む **/
+function autoload_classes( $class ) {
+    include CLASS_DIR . $class . '.php';
+}
+
+spl_autoload_register('autoload_classes');
+

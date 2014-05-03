@@ -5,77 +5,64 @@
  * 
  * 主に DB処理
  *
- * @package Datadabase
+ * @package Database
  * @author LOCKON CO.,LTD.
  * @version $Id:self.php 15532 2007-08-31 14:39:46Z nanasess $
  */
-class Database{
+class PDODatabase{
 
         var $dbh     = NULL;
         var $db_host = "";
         var $db_user = "";
         var $db_pass = "";
         var $db_name = "";
+        var $db_type = "";
 
-        public function __construct( $db_host, $db_user, $db_pass, $db_name )
+        public function __construct( $db_host, $db_user, $db_pass, $db_name, $db_type )
         {
-            $this->dbh  = $this->connectDB( $db_host, $db_user, $db_pass, $db_name );
+            $this->dbh  = &$this->connectDB( $db_host, $db_user, $db_pass, $db_name, $db_type );
             $this->db_host = $db_host;
             $this->db_user = $db_user;
             $this->db_pass = $db_pass;
             $this->db_name = $db_name;
+            $this->db_type = $db_type;
         }
 
-        private function &connectDB( $db_host, $db_user, $db_pass, $db_name )
+        private function &connectDB( $db_host, $db_user, $db_pass, $db_name, $db_type)
         {
-            try 
-            {
-                $dbh = new PDO('mysql:host='.$db_host.';dbname='.$db_name,$db_user,$db_pass);
-                $dbh->query('SET NAMES utf8');
-            }
-            catch (PDOException $e)
-            {
-                //エラーメッセージ表示
+
+        	try{
+                switch( $db_type )
+                {
+                case 'mysql':
+                    $dsn = 'mysql:host='.$db_host.';dbname='.$db_name;
+            		$dbh = new PDO($dsn,$db_user,$db_pass);
+                    $dbh->query('SET NAMES utf8');
+                    break;
+
+                case 'pgsql':
+                    $dsn = 'pgsql:dbname='.$db_name.' host=' . $db_host .' port=5432';
+            		$dbh = new PDO($dsn,$db_user,$db_pass);
+                    break;
+            	}
+        	}
+        	catch(PDOException $e)
+        	{
                 var_dump($e->getMessage());
                 exit;
-            }
-           
+        	}
+            	
             return $dbh;
         }
 
-        public function select( $table,$column = array(),$whereArr = array() ,$other="")
+        public function select( $table, $column ='', $where = '', $arrVal = array(), $sqlOption=array())
         {
-            $columnKey = "";
-            //コラムの作成
-            if(empty($column))
-            {
-                $columnKey = " * ";
-            }
-            else
-            {
-                $columnKey = implode("," ,$column);
-            }
-            
-            list( $where, $whereData )= $this->setWhereSQL( $whereArr );
-            
-            //sql文の作成
-            $sql = " SELECT "
-                 .      $columnKey 
-                 . " FROM "
-                 .      $table
-                 .      $where 
-                 .      $other ;
+
+            $sql = $this->setSQL( 'select', $table, $where, $column, $sqlOption);
 
             $stmt = $this->dbh->prepare($sql);
-
-            if( $whereData !== '' ) 
-            {
-            	$stmt->execute($whereData);
-            }
-            else
-            {
-            	$stmt->execute();
-            }
+            
+            $stmt->execute($arrVal);
             
             //データを連想配列に格納
             $data = array();
@@ -84,109 +71,176 @@ class Database{
                 array_push($data , $result);
             }
 
+
             return $data;
         }
- 
-        public function insert($table,$insData=array() ,$mdFlg = false){
 
-            if($mdFlg) $insData["modified_time"] = "NOW()";
+        public function count( $table, $where='', $arrVal=array())
+        {
+            $sql = $this->setSQL('count',$table, $where );
+            $stmt = $this->dbh->prepare($sql);
+
+            $stmt->execute($arrVal);
             
-            $insDataKey =array_keys($insData);
-            $columnKey = implode(",",$insDataKey);
-            
-            $pre = array();
-            foreach($insDataKey as $val)
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return intval($result['NUM']);
+        }
+
+        private function setSQL( $type,$table,$where='',$column='', $sqlOption=array())
+        {
+
+            switch( $type )
             {
-                $pre[]=":".trim($val);   
+            case 'select':
+                $columnKey =( $column !=='') ? $column : "*" ; 
+                break;
+
+            case 'count':
+                $columnKey = 'COUNT(*) AS NUM ';
+                break;
             }
+
+            $other ='';
+
+            if( $sqlOption !== array() )
+            {
+                $limit  = ( isset( $sqlOption['limit'])) ? $sqlOption['limit']:'';
+                $offset = ( isset( $sqlOption['offset'])) ? $sqlOption['offset'] . " , " :'';
+
+              if( $limit !== '' ) $other .=' LIMIT ' . $offset . $limit; 
+            }
+
+
+            $whereSQL = ( $where !== '' )?' WHERE  ' . $where :'';
+
+            //sql文の作成
+            $sql = " SELECT "
+                 .      $columnKey 
+                 . " FROM "
+                 .      $table
+                 .      $whereSQL
+                 .      $other;
             
-            $preSt = implode("," , $pre );
+            return $sql;
+        } 
+
+
+        public function insert($table, $insData=array() )
+        {
+           
+            list( $preSt, $insDataVal, $columns) = $this->makePreparedStatement( 'insert', $insData, $table );
             
             $sql = " INSERT INTO " . $table . " (" 
-                 .      $columnKey 
+                 .      $columns 
                  . ") VALUES (" 
                  .      $preSt 
                  . ") " ;
-                 
-            $insDataVal=array();
             
-            foreach($insData as $key => $val)
-            {
-                $insDataVal[":".trim($key)]= $val ;
-            }
-  
             $stmt = $this->dbh->prepare( $sql );
             $res = $stmt->execute($insDataVal);
 
             return $res;
         }
 
-        public function setWhereSQL( $whereArr )
+        public function update($table ,$insData = array() ,$where, $arrWhereVal=array())
         {
-            $where ='';
-           
-            //where句のプリペーアドステートメントを作り、
-            //値(whereData)を同時にセット            
-            if(!empty($whereArr))
-            {
-                $where .=" WHERE ";
-                foreach($whereArr as $val)
-                {
-                    if(is_array($val))
-                    {
-                        $where .= $val[0].$val[1].":".trim($val[0]) ; 
-                        $whereData[":".trim($val[0])] = $val[2];
-                    }
-                    else
-                    {
-                        $where .= $val;
-                    }                  
-                }
-            }
-            else
-            {
-               $whereData ="";
-            }
-
-            return array( $where, $whereData );
-        }
-
-
-
-        public function update($table ,$column = array() ,$whereArr=array(),$mdFlg = false){
-        
-            $columnArr  = array();
-            $columnData = array();
-            $where      = " WHERE ";
-            $whereData  = array();
+            list( $preSt, $insDataVal) = $this->makePreparedStatement( 'update', $insData, $table );
             
-            if($mdFlg) $column[]= array("modified_time", date('Y-m-d h:m:s')) ;
-
-            foreach($column as $key => $val)
-            {
-                $columnArr[$key] = $val[0]." = ".":".trim($val[0]);
-                $columnData[":".trim($val[0])] = $val[1];
-            }
-
-            $columnKey = implode("," , $columnArr);
-            
-            list($where, $whereData) = $this->setWhereSQL( $whereArr );
-
-			//sql文の作成
+            //sql文の作成
             $sql = " UPDATE "
                  .      $table
                  . " SET "
-                 .      $columnKey
+                 .      $preSt
+                 . " WHERE "
                  .      $where ;
             
-            $updateData = array_merge($columnData,$whereData);
-            
+            $updateData = array_merge($insDataVal,$arrWhereVal);
             $stmt = $this->dbh->prepare( $sql );
             $res = $stmt->execute($updateData);
             
             return $res ;
         }
+
+        public function makePreparedStatement( $mode, $insData, $table )
+        {
+           
+            if( !empty($insData) )
+            {
+                
+                $arrColumnNames = $this->getColumnNameArray($table);
+                
+                foreach( $insData as $key => $val )
+                {
+                    if( in_array( $key, $arrColumnNames ) !== true )
+                    {
+                        unset( $insData[$key]);
+                    }
+                }
+
+                $insDataKey =array_keys($insData);
+                $insDataVal = array_values($insData);
+                $preCnt = count( $insDataKey );
+                
+                switch( $mode )
+                {
+                case 'insert':
+
+                    $columns = implode(",",$insDataKey);
+                    $arrPreSt =array_fill( 0, $preCnt,'?');
+                    $preSt =implode(",",$arrPreSt);
+                    
+                        
+                    if( in_array(  'create_date', $arrColumnNames) === true )
+                    {
+                        $columns .=' , create_date , update_date ';
+                        $preSt .= ' , NOW() , NOW()';
+                    }
+                    
+                    return array($preSt, $insDataVal, $columns);
+
+                    break;
+                case 'update':
+                    
+                    for( $i=0;$i < $preCnt; $i++ )
+                    {
+                        $arrPreSt[$i] = $insDataKey[$i] ." =? ";
+                    }
+                    
+                    $preSt =implode(",",$arrPreSt);
+                        
+                    if( in_array(  'update_date', $arrColumnNames) === true )
+                    {
+                        $preSt .= ', update_date = NOW() ';
+                    }
+
+                    return array($preSt, $insDataVal);
+                 
+                    break;
+                }
+
+            }
+            else
+            {
+                return false;
+            }
         
+        }
+
+        public function getColumnNameArray( $table )
+        {
+            $stmt = $this->dbh->query("SELECT * FROM " . $table . " LIMIT 0");
+
+            $arrColumnNames = array();
+
+            for ($i = 0; $i < $stmt->columnCount(); $i++) {
+                $meta = $stmt->getColumnMeta($i);
+                $arrColumnNames[] = $meta['name'];
+            }
+
+            return $arrColumnNames;
+        }
+
         public function getLastId()
         {
             return mysql_insert_id( $this->db_con );

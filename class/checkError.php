@@ -916,14 +916,20 @@ class checkError
         // 年が入力されている。
         if (strlen($this->arrParam[$value[1]]) >= 1) {
             // 年の数字チェック、最小数値制限チェック
-            $this->doFunc(array($value[0].'(年)', $value[1], BIRTH_YEAR), array('NUM_CHECK', 'MIN_CHECK'));
+            $this->doFunc(array($value[0].'(年)', $value[1], 1900), array('NUM_CHECK', 'MIN_CHECK'));
             // 上のチェックでエラーある場合、中断する。
             if (isset($this->arrErr[$value[1]])) {
                 return;
             }
 
             // 年の最大数値制限チェック
-            $this->doFunc(array($value[0].'(年)', $value[1], date('Y',strtotime('now'))), array('MAX_CHECK'));
+            $birth_day = $this->arrParam[$value[1]]."-" . $this->arrParam[$value[2]] . "-" .$this->arrParam[$value[3]];
+
+            if( strtotime("now") - strtotime( $birth_day ) < 0 )
+            {
+                 $this->arrErr[$value[1]] = "※".$value[0] ."が正しくありません。";
+            }
+
             // 上のチェックでエラーある場合、中断する。
             if (isset($this->arrErr[$value[1]])) {
                 return;

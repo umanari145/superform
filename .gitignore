@@ -16,6 +16,10 @@ local.properties
 .settings/
 .loadpath
 
+
+#template_c
+template_c
+
 # External tool builders
 .externalToolBuilders/
 

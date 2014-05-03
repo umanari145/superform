@@ -1,13 +1,13 @@
 <?php
 
-/* “ú•\¦—pƒNƒ‰ƒX */
+/* æ—¥æ™‚è¡¨ç¤ºç”¨ã‚¯ãƒ©ã‚¹ */
 class dateClass {
     var $start_year;
     var $month;
     var $day;
     var $end_year;
 
-    // ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+    // ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
     function __construct($start_year='', $end_year='') {
         if ($start_year)  $this->setStartYear($start_year);
         if ($end_year)    $this->setEndYear($end_year);
@@ -38,13 +38,13 @@ class dateClass {
     }
 
     /**
-     * ”Nƒvƒ‹ƒ_ƒEƒ“—p‚Ì”z—ñ‚ğ•Ô‚·
-     * FIXME $default_year ‚Éˆê’v‚¢‚és‚ª–³‚©‚Á‚½ê‡Aæ“ª‚©––”ö‚É•t‰Á‚·‚×‚«‚Æv‚í‚ê‚éB
-     * @param string $year    XMLƒtƒ@ƒCƒ‹–¼
+     * å¹´ãƒ—ãƒ«ãƒ€ã‚¦ãƒ³ç”¨ã®é…åˆ—ã‚’è¿”ã™
+     * FIXME $default_year ã«ä¸€è‡´ã„ã‚‹è¡ŒãŒç„¡ã‹ã£ãŸå ´åˆã€å…ˆé ­ã‹æœ«å°¾ã«ä»˜åŠ ã™ã¹ãã¨æ€ã‚ã‚Œã‚‹ã€‚
+     * @param string $year    XMLãƒ•ã‚¡ã‚¤ãƒ«å
      * @param bool|string $default_year
-     *     false  u‘I‘ğ‚È‚µv‚ÍŠÜ‚ß‚È‚¢B
-     *     true   u‘I‘ğ‚È‚µv‚ÍŠÜ‚ß‚éB
-     *     string u‘I‘ğ‚È‚µv‚Íw’è‚³‚ê‚½’l‚Ì‰º‚É•t‰Á‚·‚éB
+     *     false  ã€Œé¸æŠãªã—ã€ã¯å«ã‚ãªã„ã€‚
+     *     true   ã€Œé¸æŠãªã—ã€ã¯å«ã‚ã‚‹ã€‚
+     *     string ã€Œé¸æŠãªã—ã€ã¯æŒ‡å®šã•ã‚ŒãŸå€¤ã®ä¸‹ã«ä»˜åŠ ã™ã‚‹ã€‚
      * @param string $default_key
      */
     function getYear($year = '', $default_year = false, $default_key = '') {

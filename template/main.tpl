@@ -1,3 +1,3 @@
 {include file="header.tpl"}
-{include file="{$template}"}
+{include file="{$controller}/{$template}"}
 {include file="footer.tpl"}
